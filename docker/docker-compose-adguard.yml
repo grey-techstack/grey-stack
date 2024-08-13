@@ -1,0 +1,24 @@
+version: "3"
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    ports:
+      - 'host_ip:53:53/tcp'
+      - 'host_ip:53:53/udp'
+      - '853:853/tcp'
+      - '81:80/tcp'
+      - '3000:3000/tcp'
+    volumes:
+      - /home/admtech/docker_volumes/adguard/Adguard_Data/_data:/opt/adguardhome/work
+      - /home/admtech/docker_volumes/adguard/Adguard_Config/_data:/opt/adguardhome/conf
+    environment:
+      TZ: 'Asia/Hong_Kong'
+    restart: unless-stopped
+    networks:
+      adguard:
+
+networks:
+  adguard:
+    external: false
+    name: adguard

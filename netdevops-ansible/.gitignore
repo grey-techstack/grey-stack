@@ -1,0 +1,30 @@
+### Ansible ###
+# Ansible .gitignore file
+
+# Ignore Ansible log files
+ansible.log
+
+# Ignore Ansible fact cache files
+*.fact
+
+# Ignore Ansible vault password files
+vault_password_file
+
+# Ignore Ansible retry files
+*.retry
+
+# Ignore Ansible inventory files
+inventory/*
+
+# Ignore Ansible roles directory
+roles/*
+
+# Ignore Ansible cache directory
+.cache/
+
+# Ignore Ansible virtual environment directory
+.venv/
+log.txt
+
+# Ignore Ansible running generated file
+.DS_Store

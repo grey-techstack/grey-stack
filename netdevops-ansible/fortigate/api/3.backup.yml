@@ -1,0 +1,27 @@
+#ref: https://github.com/fortinet-ansible-dev/ansible-galaxy-fortios-collection/issues/186
+#ref: search backup keywork https://ansible-galaxy-fortios-docs.readthedocs.io/en/latest/release.html
+
+- hosts: fortigate02
+  connection: httpapi
+  collections:
+  - fortinet.fortios
+  vars:
+   vdom: "root"
+   ansible_httpapi_use_ssl: yes
+   ansible_httpapi_validate_certs: no
+   ansible_httpapi_port: 443
+   access_token: "{{ fortios_access_token }}"
+  tasks:
+  - name: Backup a virtual domain.
+    fortios_monitor:
+     access_token: "{{ access_token }}"
+     selector: 'backup.system.config'
+     vdom: 'root'
+     params:
+         scope: 'global'    #-------------> use 'global' if you wanna back up the whole system.
+    register: backupinfo
+
+  - name: Save the backup information.
+    copy:
+     content: '{{ backupinfo.meta.raw }}'
+     dest: '/tmp/backup/backup.conf'

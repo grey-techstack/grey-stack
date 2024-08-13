@@ -1,0 +1,24 @@
+version: '3'
+services:
+  semaphore:
+    image: semaphoreui/semaphore:latest
+    container_name: semaphore
+    volumes:
+      - /home/admtech/docker_volumes/semaphore/data:/app/data
+    ports:
+      - 3000:3000
+    environment:
+      - SEMAPHORE_DB_DIALECT=bolt
+      - SEMAPHORE_ADMIN=admin
+      - SEMAPHORE_ADMIN_PASSWORD=changeme
+      - SEMAPHORE_ADMIN_NAME=Admin
+      - SEMAPHORE_ADMIN_EMAIL=admin@localhost
+      - TZ=Asia/Hong_Kong
+    restart: unless-stopped
+    networks:
+      semaphore:    
+
+networks:
+  semaphore:
+    external: false
+    name: semaphore

@@ -1,0 +1,7 @@
+---
+ansible_connection: ansible.netcommon.httpapi
+ansible_network_os: arista.eos.eos
+ansible_user: your_username
+ansible_password: your_password
+ansible_become: true
+ansible_become_method: enable

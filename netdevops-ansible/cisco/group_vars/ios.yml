@@ -1,0 +1,9 @@
+---
+ansible_connection: ansible.netcommon.network_cli
+ansible_network_os: cisco.ios.ios
+ansible_become: yes
+ansible_become_method: enable
+ansible_become_password: ccnacisco
+ansible_user: your_username
+ansible_password: your_password
+ansible_ssh_common_args: '-o HostKeyAlgorithms=+ssh-rsa -o KexAlgorithms=+diffie-hellman-group1-sha1'

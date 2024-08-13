@@ -1,0 +1,42 @@
+---
+- hosts: fortigate02
+  gather_facts: no
+
+  tasks:
+    - name: Try to delete VPN configuration
+      block:
+        - name: Configure VPN phase1 interface
+          fortios_vpn_ipsec_phase1_interface:
+            vdom: "root"
+            state: "present"
+            access_token: "{{ fortios_access_token }}"
+            vpn_ipsec_phase1_interface:
+              name: To_A_site
+              interface: "wan1"
+              net_device: "disable"
+              proposal:
+                - aes128-sha256
+              peertype: "any"
+              wizard_type: "custom"
+              type: "static"
+              #remotegw_ddns: "sample.fortiddns.com"
+              remote_gw: "remote_gw_ip"
+              psksecret: your_vpn_preshare_key
+              dhgrp: "2"
+              ike_version: "2"
+              dpd: "on-idle"
+              dpd_retryinterval: "5"
+        - name: Configure VPN phase2 interface
+          fortios_vpn_ipsec_phase2_interface:
+            vdom: "root"
+            state: "present"
+            access_token: "{{ fortios_access_token }}"
+            vpn_ipsec_phase2_interface:
+              name: my_phase2_interface
+              phase1name: To_A_site
+              proposal: aes128-sha256
+              src_addr_type: subnet
+              src_subnet: 172.25.0.0 255.255.0.0
+              dst_addr_type: subnet
+              dst_subnet: 192.168.0.0 255.255.0.0
+...

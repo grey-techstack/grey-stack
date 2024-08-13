@@ -1,0 +1,50 @@
+---
+- name: Merge provided configuration with device configuration (default operation is merge)
+  hosts: brdr1
+  gather_facts: no
+  vars_files:
+    - group_vars/eos.yml
+
+  tasks:
+    - name: Save register-original IP prefix-list configuration
+      arista.eos.eos_command:
+        commands: show running-config | section ip prefix-list
+      register: original_prefix_list_info
+      
+    - name: Print original IP prefix-list configuration
+      debug:
+        var: original_prefix_list_info.stdout_lines
+
+    - name: Create IP prefix-list PFX-GREY-TEST and add a rule
+      arista.eos.eos_prefix_lists:
+        config:
+          - afi: ipv4
+            prefix_lists:
+              - name: PFX-GREY-TEST
+                entries:
+                  - sequence: 10
+                    action: permit
+                    address: 10.10.0.0/24
+        state: merged
+
+    - name: Delete IP prefix-list PFX-GREY-TEST
+      arista.eos.eos_config:
+        lines:
+          - no ip prefix-list PFX-GREY-TEST
+      register: delete_result
+    
+
+    - name: Save register-updated IP prefix-list information
+      arista.eos.eos_command:
+        commands: show running-config | section ip prefix-list
+      register: prefix_list_info
+
+    - name: Print updated IP prefix-list information
+      debug:
+        var: prefix_list_info.stdout_lines
+
+
+    - name: Compare original and updated IP prefix-list configurations
+      debug:  #difference=filter of jinja2
+        msg: "Difference in IP prefix-list configurations (deleted): {{ original_prefix_list_info.stdout_lines[0] | difference(prefix_list_info.stdout_lines[0]) }}"
+...

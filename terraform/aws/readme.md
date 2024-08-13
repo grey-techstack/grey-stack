@@ -1,0 +1,1 @@
+### Terraform state store in AWS S3 storage

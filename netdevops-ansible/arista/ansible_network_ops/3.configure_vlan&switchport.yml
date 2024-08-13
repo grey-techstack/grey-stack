@@ -1,0 +1,56 @@
+---
+- name: Merge provided configuration with device configuration (default operation is merge)
+  hosts: brdr1
+  gather_facts: no
+  vars_files:
+    - group_vars/eos.yml
+  tasks:
+    - name: Configure EOS Interfaces
+      arista.eos.eos_interfaces:
+        config:
+        - name: Ethernet1
+          description: Configured by Ansible
+          enabled: true
+        - name: Ethernet2
+          description: Configured by Ansible
+          enabled: true
+        state: deleted
+
+    - name: Create VLAN 99
+      arista.eos.eos_vlans:
+        config:
+          - name: "Grey_automation_test"  #no space allow
+            vlan_id: 99
+            state: active #state:suspend=inactive
+        state: merged #state:deleted=delete vlan
+
+    - name: Gather vlans facts from the device
+      arista.eos.eos_vlans:
+        state: gathered
+
+    - name: Show VLAN information
+      arista.eos.eos_command:
+        commands: show vlan
+      register: vlan_info
+      tags:
+        - show vlan
+        
+    - name: Print VLAN information
+      debug:
+        var: vlan_info.stdout_lines
+      tags:
+        - show vlan
+
+    - name: Show interface status
+      arista.eos.eos_command:
+        commands: show interfaces status
+      register: interface_status
+      tags:
+        - show interfaces status
+
+    - name: Print interface status
+      debug:
+        var: interface_status.stdout_lines
+      tags:
+        - show interfaces status     
+...

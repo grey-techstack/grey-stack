@@ -1,0 +1,12 @@
+- name: Update FortiOS hostname
+  hosts: fortigate02
+  gather_facts: no
+
+  vars:
+    new_hostname: FWF2
+  tasks:
+    - name: Set FortiOS hostname
+      fortios_system_global:
+        access_token: "{{ fortios_access_token }}"  #must, cannot define at hosts and group_vars
+        system_global:
+          hostname: "{{ new_hostname }}"

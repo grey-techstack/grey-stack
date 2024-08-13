@@ -1,0 +1,13 @@
+- name: Update FortiOS configuration 
+  hosts: fortigate01
+  gather_facts: no
+
+  tasks:
+    - name: Configure IPv4 addresses
+      fortios_firewall_address:
+        vdom: "root"
+        state: "present"
+        access_token: "{{ fortios_access_token }}"
+        firewall_address:
+          name: 
+

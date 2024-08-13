@@ -1,0 +1,59 @@
+---
+- name: Merge provided configuration with device configuration (default operation is merge)
+  hosts: brdr1
+  gather_facts: no
+  vars_files:
+    - group_vars/eos.yml
+  vars:
+    vlan_id: 99  # VLAN ID
+
+  tasks:
+    - name: Create VLAN 99
+      arista.eos.eos_vlans:
+        config:
+          - name: "Grey_automation_test"  # Specify the VLAN name (no spaces allowed)
+            vlan_id: "{{ vlan_id }}"  # Use the VLAN ID variable
+            state: active  # Specify the VLAN state (active or suspend)
+        state: replaced  # Specify the VLAN state operation (replaced, merged, deleted)
+
+    - name: Configure VLAN 99 virtual IP addresses
+      arista.eos.eos_command:
+        commands:
+          - "configure terminal"
+          - "interface Vlan{{ vlan_id }}"  # Use the VLAN ID variable to specify the VLAN interface
+          - "ip address virtual 99.99.99.99/24"  # Configure the primary virtual IP address
+          - "ip address virtual 99.99.99.97/24 secondary"  # Configure the secondary virtual IP address
+
+    - name: Show VLAN information
+      arista.eos.eos_command:
+        commands: show vlan
+      register: vlan_info
+      tags:
+        - show vlan
+
+    - name: Print VLAN information
+      debug:
+        var: vlan_info.stdout_lines
+      tags:
+        - show vlan
+
+    - name: Enable/disable VLAN interface
+      arista.eos.eos_interfaces:
+        config:
+          - name: "Vlan{{ vlan_id }}"  # Use the VLAN ID variable to specify the VLAN interface
+            enabled: true  # Set the interface to be disabled
+        state: merged  # Specify the interface state operation (replaced, merged, deleted)
+
+    - name: Show interface VLAN
+      arista.eos.eos_command:
+        commands: "show interfaces vlan {{ vlan_id }}"  # Show interface information for the specified VLAN
+      register: interface_vlan
+      tags:
+        - show interfaces vlan
+
+    - name: Print interface VLAN
+      debug:
+        var: interface_vlan.stdout_lines
+      tags:
+        - show interfaces vlan
+

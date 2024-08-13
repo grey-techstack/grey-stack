@@ -1,0 +1,2 @@
+#api test1-works
+curl -H "Authorization: Bearer apikey" -H "username: apiuser" https://fortigate-ip/api/v2/cmdb/system/interface

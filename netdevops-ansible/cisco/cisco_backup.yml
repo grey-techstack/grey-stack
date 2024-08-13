@@ -1,0 +1,29 @@
+---
+- name: Backup Cisco 2960L configuration
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - group_vars/ios.yml
+
+  vars:
+    ansible_ssh_common_args: '-o HostKeyAlgorithms=+ssh-rsa -o KexAlgorithms=+diffie-hellman-group1-sha1'
+
+  tasks:
+    - name: Get timestamp
+      command: date +%Y%m%d%H%M%S
+      delegate_to: localhost
+      register: timestamp
+
+    - name: Fetch running config
+      cisco.ios.ios_command:
+        commands: show run
+      register: backup_result
+
+    - name: Debug backup_result
+      debug:
+        var: backup_result
+        
+    - name: Save running config
+      copy:
+        content: "{{ backup_result.stdout[0] }}"
+        dest: "/home/admtech/backup/cisco/{{ inventory_hostname }}-{{ timestamp.stdout }}"

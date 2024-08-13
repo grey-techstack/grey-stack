@@ -1,0 +1,17 @@
+---
+- name: Merge provided configuration with device configuration (default operation is merge)
+  hosts: switch
+  gather_facts: no
+  vars_files:
+    - group_vars/junos.yml
+  tasks:
+    - name: Configure Junos Interfaces
+      junipernetworks.junos.junos_interfaces:
+        config:
+          - name: ge-0/0/2
+            description: Configured by Ansible-2
+            enabled: true
+          - name: ge-0/0/3
+            description: Configured by Ansible-3
+            enabled: true
+        state: merged

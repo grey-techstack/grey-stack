@@ -1,0 +1,4 @@
+[cisco]
+cisco2960L-16PS ansible_host=your_switch_ip
+
+

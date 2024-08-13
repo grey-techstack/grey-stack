@@ -1,0 +1,35 @@
+- name: Update FortiOS configuration 
+  hosts: fortigate01
+  gather_facts: no
+
+  tasks:
+    - name: Configure IPv4 policy
+      fortios_firewall_interface_policy:  #only with 6.2.12
+        vdom: "root"
+        state: "present"
+        access_token: "{{ fortios_access_token }}"
+        firewall_interface_policy:
+          policyid: "6"
+          interface: "M7-5G"
+          address_type: "ipv4"
+          application_list: "default"
+          application_list_status: "enable"
+          av_profile: "default"
+          av_profile_status: "enable"
+          logtraffic: "all"
+          dstaddr:
+            - 
+              name: "all"
+          srcaddr:
+            - 
+              name: "all"
+          service:
+            - 
+              name: "all"
+          status: "enable"
+...
+          
+
+
+          
+
