@@ -22,8 +22,8 @@
     - name: Debug backup_result
       debug:
         var: backup_result
-        
-    - name: Save running config
-      copy:
-        content: "{{ backup_result.stdout[0] }}"
-        dest: "/home/admtech/backup/cisco/{{ inventory_hostname }}-{{ timestamp.stdout }}"
+
+    - name: Display running config
+      debug:
+        msg: "{{ backup_result.stdout[0] }}"
+...
