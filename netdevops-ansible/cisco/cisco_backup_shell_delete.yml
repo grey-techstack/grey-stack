@@ -16,16 +16,21 @@
 
     - name: Fetch running config
       cisco.ios.ios_command:
-        commands:
-          - show running-config
+        commands: show run
       register: backup_result
+
+    - name: Debug backup_result
+      debug:
+        var: backup_result
 
     - name: Save backup to file
       copy:
         content: "{{ backup_result.stdout[0] }}"
-        dest: "/home/admtech/cisco_backup/{{ inventory_hostname }}_{{ timestamp.stdout }}.cfg"
+        dest: "/home/admtech/backup/cisco_backup/{{ inventory_hostname }}_{{ timestamp.stdout }}.cfg"
       delegate_to: localhost
+
 
     - name: Remove old backups, keep the last 30 versions
       shell: "ls -t /home/admtech/cisco_backup/{{ inventory_hostname }}_*.cfg | tail -n +31 | xargs rm -f"
       delegate_to: localhost
+...
