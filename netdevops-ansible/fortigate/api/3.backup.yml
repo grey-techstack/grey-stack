@@ -1,27 +1,29 @@
 #ref: https://github.com/fortinet-ansible-dev/ansible-galaxy-fortios-collection/issues/186
 #ref: search backup keywork https://ansible-galaxy-fortios-docs.readthedocs.io/en/latest/release.html
+#ref: https://galaxy.ansible.com/ui/repo/published/fortinet/fortios/content/module/fortios_monitor_fact/?extIdCarryOver=true&sc_cid=701f2000001OH7YAAW
+# exclusivly for FortiOS monitor API, and ssh methoods also failed 
 
-- hosts: fortigate02
-  connection: httpapi
-  collections:
-  - fortinet.fortios
-  vars:
-   vdom: "root"
-   ansible_httpapi_use_ssl: yes
-   ansible_httpapi_validate_certs: no
-   ansible_httpapi_port: 443
-   access_token: "{{ fortios_access_token }}"
-  tasks:
-  - name: Backup a virtual domain.
-    fortios_monitor:
-     access_token: "{{ access_token }}"
-     selector: 'backup.system.config'
-     vdom: 'root'
-     params:
-         scope: 'global'    #-------------> use 'global' if you wanna back up the whole system.
-    register: backupinfo
+# - name: Backup FortiOS firewall configuration
+#   hosts: all
+#   gather_facts: no
+#   vars_files:
+#     - group_vars/fortigate.yml
 
-  - name: Save the backup information.
-    copy:
-     content: '{{ backupinfo.meta.raw }}'
-     dest: '/tmp/backup/backup.conf'
+#   vars:
+#     ansible_user: "{{ fw_username }}"
+#     ansible_password: "{{ fw_password }}"
+#     ansible_python_interpreter: /usr/bin/python3
+
+#   tasks:
+#   - name: Backup a virtual domain.
+#     fortinet.fortios.fortios_monitor_fact:
+#      selector: 'system_config_backup'
+#      vdom: 'root'
+#      params:
+#          scope: 'global'    #-------------> use 'global' if you wanna back up the whole system.
+#     register: backupinfo
+
+#   - name: Save the backup information.
+#     copy:
+#      content: '{{ backupinfo.meta.raw }}'
+#      dest: '~/backup/fortios_backup/backup.conf'
