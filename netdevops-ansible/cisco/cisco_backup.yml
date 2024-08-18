@@ -23,7 +23,24 @@
       debug:
         var: backup_result
 
-    - name: Display running config
-      debug:
-        msg: "{{ backup_result.stdout[0] }}"
+    - name: Save backup to file
+      copy:
+        content: "{{ backup_result.stdout[0] }}"
+        dest: "/home/admtech/backup/cisco_backup/{{ inventory_hostname }}_{{ timestamp.stdout }}.cfg"
+      delegate_to: localhost
+
+    - name: Remove old backups, keep the last 30 versions
+      find:
+        paths: /home/admtech/backup/cisco_backup
+        patterns: "{{ inventory_hostname }}_*.cfg"
+        age: '30d'
+        size: '1'
+        recurse: yes
+      register: old_backups
+      
+    - name: Delete old backup files
+      file:
+        path: "{{ item.path }}"     #defind by find module
+        state: absent
+      loop: "{{ old_backups.files }}"
 ...
