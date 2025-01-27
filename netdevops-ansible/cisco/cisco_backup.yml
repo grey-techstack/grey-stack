@@ -7,6 +7,36 @@
 
   vars:
     ansible_ssh_common_args: '-o HostKeyAlgorithms=+ssh-rsa -o KexAlgorithms=+diffie-hellman-group1-sha1'
+    max_backups: 20  # Total number of backups to keep
+    slack_webhook: "{{ slack_webhook }}"  # Will be provided by Semaphore survey
+
+  pre_tasks:
+    - name: Find all backup files for this host
+      find:
+        paths: /home/admtech/backup/cisco_backup
+        patterns: "{{ inventory_hostname }}_*.cfg"
+        recurse: no
+        file_type: file
+      register: all_backups
+      delegate_to: localhost
+
+    - name: Sort backups by modification time (oldest first)
+      set_fact:
+        sorted_backups: "{{ all_backups.files | sort(attribute='mtime') }}"
+      delegate_to: localhost
+
+    - name: Calculate files to delete
+      set_fact:
+        files_to_delete: "{{ sorted_backups[0:(sorted_backups | length - max_backups + 2)] }}"
+      when: sorted_backups | length >= max_backups - 1
+      delegate_to: localhost
+
+    - name: Delete excess backup files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ files_to_delete | default([]) }}"
+      delegate_to: localhost
 
   tasks:
     - name: Get timestamp
@@ -29,18 +59,26 @@
         dest: "/home/admtech/backup/cisco_backup/{{ inventory_hostname }}_{{ timestamp.stdout }}.cfg"
       delegate_to: localhost
 
-    - name: Remove old backups, keep the last 30 versions
-      find:
-        paths: /home/admtech/backup/cisco_backup
-        patterns: "{{ inventory_hostname }}_*.cfg"
-        age: '30d'
-        size: '1'
-        recurse: yes
-      register: old_backups
-      
-    - name: Delete old backup files
-      file:
-        path: "{{ item.path }}"     #defind by find module
-        state: absent
-      loop: "{{ old_backups.files }}"
+  post_tasks:
+    - name: Send Slack notification on success
+      uri:
+        url: "{{ slack_webhook }}"
+        method: POST
+        body_format: json
+        body:
+          text: "✅ Backup completed successfully for {{ inventory_hostname }}"
+          username: "Ansible Backup Bot"
+          icon_emoji: ":floppy_disk:"
+      when: not backup_result.failed
+
+    - name: Send Slack notification on failure
+      uri:
+        url: "{{ slack_webhook }}"
+        method: POST
+        body_format: json
+        body:
+          text: "❌ Backup failed for {{ inventory_hostname }}"
+          username: "Ansible Backup Bot"
+          icon_emoji: ":warning:"
+      when: backup_result.failed
 ...
